@@ -1,0 +1,17 @@
+ssh PCPCwnww@blp03.ccni.rpi.edu
+
+ssh dcsfen01
+
+salloc -N 1 --partition=el8-rpi --gres=gpu:4 -t 30
+
+module load xl_r spectrum-mpi cuda
+
+nvcc -O3 -gencode arch=compute_70,code=sm_70 cla-parallel.cu -o cla-parallel
+
+
+export http_proxy=http://proxy:8888
+export https_proxy=$http_proxy
+
+github token: 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
+
+git clone https://github.com/ZhiqiEliWang/csci4320hw3.git
