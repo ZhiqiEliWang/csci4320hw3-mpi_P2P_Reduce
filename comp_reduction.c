@@ -38,7 +38,7 @@ int MPI_P2P_Reduce(long long int* send_data, // each process's partition of task
         else{ // odd ranks after stride: sender
             MPI_Request send_req;
             MPI_Status send_status;
-            MPI_Isend(&local_sum, 1, MPI_LONG_LONG, self_rank-1, MPI_ANY_TAG, communicator, &send_req);
+            MPI_Isend(&local_sum, 1, MPI_LONG_LONG, self_rank-1, 0, communicator, &send_req);
             MPI_Wait(&send_req , &send_status);
         }
         stride *= 2;
