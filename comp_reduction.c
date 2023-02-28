@@ -93,8 +93,8 @@ int main(int argc, char** argv){
 
     // show runtime
     if (world_rank == 0){
-        p2p_time_in_secs = ((double)(p2p_end_cycles - p2p_start_cycles)) / 512000000;
-        printf("MPI_P2P_Reduce took %d seconds.\n")
+        double p2p_time_in_secs = ((double)(p2p_end_cycles - p2p_start_cycles)) / 512000000;
+        printf("MPI_P2P_Reduce took %d seconds.\n", p2p_time_in_secs);
     }
 
     free(bigArr);
