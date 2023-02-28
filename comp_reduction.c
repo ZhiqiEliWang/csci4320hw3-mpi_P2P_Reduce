@@ -5,8 +5,8 @@
 
 
 // this function takes the same inputs as MPI_reduce, except MPI_Op is set to MPI_SUM
-int MPI_P2P_Reduce(void* send_data, // each process's partition of task array
-    void* recv_data, // the result of reduction, for root only
+int MPI_P2P_Reduce(long long int* send_data, // each process's partition of task array
+    long long int* recv_data, // the result of reduction, for root only
     int count, // length of the send_data
     MPI_Datatype datatype, // MPI_LONG_LONG in our case
     int root, // 0 in our case
@@ -32,19 +32,19 @@ int MPI_P2P_Reduce(void* send_data, // each process's partition of task array
             MPI_Request recv_req;
             MPI_Status recv_status;
             MPI_Irecv(&recv_buf, 1, MPI_LONG_LONG, self_rank+1, MPI_ANY_TAG, communicator, &recv_req);
-            MPI_Wait(&recv_buf , &recv_status);
+            MPI_Wait(&recv_req , &recv_status);
             local_sum += recv_buf; // perform pairwise sum here
         }
         else{ // odd ranks after stride: sender
             MPI_Request send_req;
             MPI_Status send_status;
             MPI_Isend(&local_sum, 1, MPI_LONG_LONG, self_rank-1, MPI_ANY_TAG, communicator, &send_req);
-            MPI_Wait(&send_buf , &send_status);
+            MPI_Wait(&send_req , &send_status);
         }
         stride *= 2;
         MPI_Barrier(communicator); // sync here
     }
-    return;
+    return 0;
 }
 
 
@@ -58,7 +58,7 @@ int main(int argc, char** argv){
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
     // size of a array is determined by how many nodes are working on this task
-    arrSize = 2**30 / world_rank; 
+    int arrSize = 2**30 / world_rank; 
 
     long long int* bigArr = malloc(sizeof(long long int)*world_size);
 
@@ -68,15 +68,15 @@ int main(int argc, char** argv){
 
     // calling MPI_P2P_Reduce
     long long int global_sum; // only 0th rank process will have this value modified 
-    MPI_P2P_Reduce(bigArr, &global_sum, arrSize, long long int, 0, MPI_COMM_WORLD);
+    MPI_P2P_Reduce(bigArr, &global_sum, arrSize, MPI_LONG_LONG, 0, MPI_COMM_WORLD);
 
     if (world_rank == 0){ // only root has the result and it prints it here
-        long long int currect_answer = 576460751766552576;
+        long long int correct_answer = 576460751766552576;
         if (currect_answer - global_sum == 0){
-            printf("result is correct: %lld\n", currect_answer);
+            printf("result is correct: %lld\n", correct_answer);
         }
         else{
-            printf("correct answer: %lld\nmy answer:      %lld\n");
+            printf("correct answer: %lld\nmy answer:      %lld\n",correct_answer, global_sum);
         }
     }
 
