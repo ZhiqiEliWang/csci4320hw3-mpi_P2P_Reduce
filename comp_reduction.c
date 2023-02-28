@@ -42,6 +42,7 @@ int MPI_P2P_Reduce(long long int* send_data, // each process's partition of task
             MPI_Wait(&send_req , &send_status);
         }
         stride *= 2;
+        printf("rank: %d hits barrier\n", self_rank);
         MPI_Barrier(communicator); // sync here
     }
     return 0;
