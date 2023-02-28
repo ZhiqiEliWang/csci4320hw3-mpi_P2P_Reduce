@@ -58,7 +58,7 @@ int main(int argc, char** argv){
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
     // size of a array is determined by how many nodes are working on this task
-    int arrSize = 2**30 / world_rank; 
+    int arrSize = 2<<30 / world_rank; 
 
     long long int* bigArr = malloc(sizeof(long long int)*world_size);
 
@@ -72,7 +72,7 @@ int main(int argc, char** argv){
 
     if (world_rank == 0){ // only root has the result and it prints it here
         long long int correct_answer = 576460751766552576;
-        if (currect_answer - global_sum == 0){
+        if (correct_answer - global_sum == 0){
             printf("result is correct: %lld\n", correct_answer);
         }
         else{
