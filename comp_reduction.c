@@ -31,14 +31,14 @@ int MPI_P2P_Reduce(long long int* send_data, // each process's partition of task
             long long int recv_buf;
             MPI_Request recv_req;
             MPI_Status recv_status;
-            MPI_Irecv(&recv_buf, 1, MPI_LONG_LONG, self_rank+1, MPI_ANY_TAG, communicator, &recv_req);
+            MPI_Irecv(&recv_buf, 1, MPI_LONG_LONG, self_rank+stride, MPI_ANY_TAG, communicator, &recv_req);
             MPI_Wait(&recv_req , &recv_status);
             local_sum += recv_buf; // perform pairwise sum here
         }
         else if (self_rank % stride == 0){ // odd ranks after stride: sender
             MPI_Request send_req;
             MPI_Status send_status;
-            MPI_Isend(&local_sum, 1, MPI_LONG_LONG, self_rank-1, 0, communicator, &send_req);
+            MPI_Isend(&local_sum, 1, MPI_LONG_LONG, self_rank-stride, 0, communicator, &send_req);
             MPI_Wait(&send_req , &send_status);
         }
         stride *= 2;
