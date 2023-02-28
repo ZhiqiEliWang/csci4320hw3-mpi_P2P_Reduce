@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <mpi.h>
-
+#include "clockcycle.h"
 
 
 // this function takes the same inputs as MPI_reduce, except MPI_Op is set to MPI_SUM
@@ -27,7 +27,8 @@ int MPI_P2P_Reduce(long long int* send_data, // each process's partition of task
     // --------------2. Compute pairwise sums between MPI ranks-------------------
     int stride = 1;
     while (stride < comm_size){
-        if ((self_rank / stride) % 2 == 0 && self_rank % stride == 0){ // even ranks after stride: receiver
+        printf("---------stride: %d-----------\n", stride);
+        if ((self_rank / stride) % 2 == 0){ // even ranks after stride: receiver
             long long int recv_buf;
             MPI_Request recv_req;
             MPI_Status recv_status;
@@ -36,7 +37,7 @@ int MPI_P2P_Reduce(long long int* send_data, // each process's partition of task
             local_sum += recv_buf; // perform pairwise sum here
             printf("rank: %d received\n", self_rank);
         }
-        else if (self_rank % stride == 0){ // odd ranks after stride: sender
+        else{ // odd ranks after stride: sender
             MPI_Request send_req;
             MPI_Status send_status;
             MPI_Isend(&local_sum, 1, MPI_LONG_LONG, self_rank-stride, 0, communicator, &send_req);
@@ -44,11 +45,13 @@ int MPI_P2P_Reduce(long long int* send_data, // each process's partition of task
             printf("rank: %d sent\n", self_rank);
         }
         stride *= 2;
-        printf("rank: %d hits barrier\n\n", self_rank);
         MPI_Barrier(communicator); // sync here
+        printf("rank: %d just hit barrier\n\n", self_rank);
     }
     return 0;
 }
+
+
 
 
 int main(int argc, char** argv){
@@ -70,8 +73,10 @@ int main(int argc, char** argv){
     }
 
     // calling MPI_P2P_Reduce
-    long long int global_sum; // only 0th rank process will have this value modified 
+    long long int global_sum = 0; // only 0th rank process will have this value modified 
+    uint64_t p2p_start_cycles = clock_now();
     MPI_P2P_Reduce(bigArr, &global_sum, arrSize, MPI_LONG_LONG, 0, MPI_COMM_WORLD);
+    uint64_t p2p_end_cycles = clock_now();
 
     if (world_rank == 0){ // only root has the result and it prints it here
         long long int correct_answer = 576460751766552576;
@@ -81,6 +86,15 @@ int main(int argc, char** argv){
         else{
             printf("correct answer: %lld\nmy answer:      %lld\n",correct_answer, global_sum);
         }
+    }
+
+    //calling MPI_Reduce
+
+
+    // show runtime
+    if (world_rank == 0){
+        p2p_time_in_secs = ((double)(p2p_end_cycles - p2p_start_cycles)) / 512000000;
+        printf("MPI_P2P_Reduce took %d seconds.\n")
     }
 
     free(bigArr);
