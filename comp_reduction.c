@@ -27,7 +27,7 @@ int MPI_P2P_Reduce(long long int* send_data, // each process's partition of task
     // --------------2. Compute pairwise sums between MPI ranks-------------------
     int stride = 1;
     while (stride < comm_size){
-        if ((self_rank / stride) % 2 == 0){ // even ranks after stride: receiver
+        if ((self_rank / stride) % 2 == 0 && self_rank % stride == 0){ // even ranks after stride: receiver
             long long int recv_buf;
             MPI_Request recv_req;
             MPI_Status recv_status;
@@ -35,7 +35,7 @@ int MPI_P2P_Reduce(long long int* send_data, // each process's partition of task
             MPI_Wait(&recv_req , &recv_status);
             local_sum += recv_buf; // perform pairwise sum here
         }
-        else{ // odd ranks after stride: sender
+        else if (self % stride == 0){ // odd ranks after stride: sender
             MPI_Request send_req;
             MPI_Status send_status;
             MPI_Isend(&local_sum, 1, MPI_LONG_LONG, self_rank-1, 0, communicator, &send_req);
