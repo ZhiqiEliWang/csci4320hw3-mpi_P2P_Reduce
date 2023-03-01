@@ -36,7 +36,6 @@ int MPI_P2P_Reduce(long long int* send_data, // each process's partition of task
     MPI_Status send_status;
 
     while (stride < comm_size){
-        if (self_rank == 0){printf("\n---------stride: %d-----------\n", stride);}
         if ((self_rank / stride) % 2 == 0){ // even ranks after stride: receiver
             long long int recv_buf;
             MPI_Irecv(&recv_buf, 1, MPI_LONG_LONG, self_rank+stride, MPI_ANY_TAG, communicator, &recv_req);
@@ -52,6 +51,7 @@ int MPI_P2P_Reduce(long long int* send_data, // each process's partition of task
         stride *= 2;
         // printf("rank: %d about to hit MPI_Barrierr\n\n", self_rank);
         MPI_Barrier(communicator); // sync here
+        if (self_rank == 0){printf("\n---------stride: %d done-----------\n", stride);}
         // printf("rank: %d just hit barrier\n\n", self_rank);
     }
     MPI_Barrier(communicator); // sync here
