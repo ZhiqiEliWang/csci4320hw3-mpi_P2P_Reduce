@@ -1,0 +1,37 @@
+void MPI_P2P_Reduce(long long *sendbuf, void *recvbuf, int count,
+                    MPI_Datatype datatype, int target,
+                    MPI_Comm comm) {
+  int stride = 1;
+  int rank, size;
+  int curRank = MPI_Comm_rank(comm, &rank);
+
+  long long sum = 0; 
+  for (int i = 0; i < count; i++) { 
+    sum += sendbuf[i];
+  }
+  MPI_Barrier(comm);
+  //printf("count: %d sum: %lld\n", count, sum);
+  //printf("%d", MPI_Comm_size(comm, &size));
+  MPI_Comm_size(comm, &size);
+  //printf("size: %d\n", size);
+  //MPI_Comm_size(comm, &size);
+  while (stride < size) {
+    //printf("%d %d\n", size, rank);       
+    if ((rank / stride) % 2) {  // sender
+      MPI_Request req;
+      MPI_Isend(&sum, 1, MPI_LONG_LONG, rank - stride, 0, comm, &req);
+      MPI_Wait(&req, MPI_STATUS_IGNORE);
+    } else {  // receiver
+      long long temp;
+      MPI_Request req;
+      MPI_Irecv(&temp, 1, MPI_LONG_LONG, rank + stride, MPI_ANY_TAG, comm, &req);
+      MPI_Wait(&req, MPI_STATUS_IGNORE);
+      sum += temp;
+      if (sum >= 576460751766552576) 
+          printf("temp: %lld\n", sum);
+    }
+    stride *= 2;  
+    MPI_Barrier(comm);
+  }
+  return;
+}
