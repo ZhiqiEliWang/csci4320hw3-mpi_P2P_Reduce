@@ -29,27 +29,28 @@ int MPI_P2P_Reduce(long long int* send_data, // each process's partition of task
     // --------------2. Compute pairwise sums between MPI ranks-------------------
     int stride = 1;
     
+    MPI_Request recv_req;
+    MPI_Status recv_status;
+    MPI_Request send_req;
+    MPI_Status send_status;
+
     while (stride < comm_size){
         if (self_rank == 0){printf("---------stride: %d-----------\n", stride);}
         if ((self_rank / stride) % 2 == 0){ // even ranks after stride: receiver
             long long int recv_buf;
-            MPI_Request recv_req;
-            MPI_Status recv_status;
             MPI_Irecv(&recv_buf, 1, MPI_LONG_LONG, self_rank+stride, MPI_ANY_TAG, communicator, &recv_req);
             MPI_Wait(&recv_req , &recv_status);
             local_sum += recv_buf; // perform pairwise sum here
             printf("rank: %d received\n", self_rank);
         }
         else{ // odd ranks after stride: sender
-            MPI_Request send_req;
-            MPI_Status send_status;
             MPI_Isend(&local_sum, 1, MPI_LONG_LONG, self_rank-stride, 0, communicator, &send_req);
             MPI_Wait(&send_req , &send_status);
             printf("rank: %d sent\n", self_rank);
         }
         stride *= 2;
         printf("rank: %d about to hit MPI_Barrierr\n\n", self_rank);
-        MPI_Barrier(communicator); // sync here
+        // MPI_Barrier(communicator); // sync here
         printf("rank: %d just hit barrier\n\n", self_rank);
     }
     if (self_rank == root){recv_data = &local_sum;}
@@ -81,6 +82,7 @@ int main(int argc, char* argv[]){
     long long int global_sum = 0; // only 0th rank process will have this value modified 
     uint64_t p2p_start_cycles = clock_now();
     MPI_P2P_Reduce(bigArr, &global_sum, arrSize, MPI_LONG_LONG, 0, MPI_COMM_WORLD);
+    MPI_Barrier(MPI_COMM_WORLD);
     uint64_t p2p_end_cycles = clock_now();
 
     if (world_rank == 0){ // only root has the result and it prints it here
