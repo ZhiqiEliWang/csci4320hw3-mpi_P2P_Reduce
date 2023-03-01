@@ -14,9 +14,8 @@ int MPI_P2P_Reduce(long long int* send_data, // each process's partition of task
     {
 
     long long int local_sum = 0;
-    int self_rank;
+    int self_rank, comm_size;
     MPI_Comm_rank(communicator, &self_rank); // get current rank number
-    int comm_size;
     MPI_Comm_size(communicator, &comm_size); // get total number of nodes
 
     // -----------1. Each rank computes sum over local data array.---------------
@@ -30,19 +29,19 @@ int MPI_P2P_Reduce(long long int* send_data, // each process's partition of task
     // --------------2. Compute pairwise sums between MPI ranks-------------------
     int stride = 1;
     
-    MPI_Request recv_req;
-    MPI_Status recv_status;
-    MPI_Request send_req;
-    MPI_Status send_status;
 
     while (stride < comm_size){
         if ((self_rank / stride) % 2 == 1){ // odd ranks after stride: sender
+            MPI_Request send_req;
+            MPI_Status send_status;
             MPI_Isend(&local_sum, 1, MPI_LONG_LONG, self_rank-stride, 0, communicator, &send_req);
             MPI_Wait(&send_req , MPI_STATUS_IGNORE);
             printf("rank: %d sent\n", self_rank);
         }
         else{ // even ranks after stride: receiver
             long long int recv_buf;
+            MPI_Request recv_req;
+            MPI_Status recv_status;
             MPI_Irecv(&recv_buf, 1, MPI_LONG_LONG, self_rank+stride, MPI_ANY_TAG, communicator, &recv_req);
             MPI_Wait(&recv_req , MPI_STATUS_IGNORE);
             printf("rank: %d received\n", self_rank);
