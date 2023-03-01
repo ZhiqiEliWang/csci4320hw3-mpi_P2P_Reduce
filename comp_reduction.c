@@ -86,6 +86,8 @@ int main(int argc, char* argv[]){
     MPI_Barrier(MPI_COMM_WORLD);
     uint64_t p2p_end_cycles = clock_now();
 
+    MPI_Finalize();
+
     if (world_rank == 0){ // only root has the result and it prints it here
         long long int correct_answer = 576460751766552576;
         if (correct_answer - global_sum == 0){
@@ -106,6 +108,5 @@ int main(int argc, char* argv[]){
     }
 
     free(bigArr);
-    MPI_Finalize();
     return 0;
 }
