@@ -54,6 +54,7 @@ int MPI_P2P_Reduce(long long int* send_data, // each process's partition of task
         MPI_Barrier(communicator); // sync here
         // printf("rank: %d just hit barrier\n\n", self_rank);
     }
+    MPI_Barrier(communicator); // sync here
     if (self_rank == root){*recv_data = local_sum;}
     return 0;
 }
