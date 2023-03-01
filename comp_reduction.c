@@ -50,12 +50,11 @@ int MPI_P2P_Reduce(long long int* send_data, // each process's partition of task
             printf("rank: %d sent\n", self_rank);
         }
         stride *= 2;
-        printf("rank: %d about to hit MPI_Barrierr\n\n", self_rank);
+        // printf("rank: %d about to hit MPI_Barrierr\n\n", self_rank);
         // MPI_Barrier(communicator); // sync here
-        printf("rank: %d just hit barrier\n\n", self_rank);
+        // printf("rank: %d just hit barrier\n\n", self_rank);
     }
-    // if (self_rank == root){recv_data = &local_sum;}
-    recv_data = &local_sum;
+    if (self_rank == root){*recv_data = local_sum;}
     return 0;
 }
 
