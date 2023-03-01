@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <mpi.h>
 #include "clockcycle.h"
-#include ""
 
 
 // this function takes the same inputs as MPI_reduce, except MPI_Op is set to MPI_SUM
@@ -46,7 +45,6 @@ int MPI_P2P_Reduce(long long int* send_data, // each process's partition of task
             printf("rank: %d received\n", self_rank);
         }
         else{ // odd ranks after stride: sender
-            printf("selfrank - stride : %d\n", self_rank-stride)
             MPI_Isend(&local_sum, 1, MPI_LONG_LONG, self_rank-stride, 0, communicator, &send_req);
             MPI_Wait(&send_req , &send_status);
             printf("rank: %d sent\n", self_rank);
