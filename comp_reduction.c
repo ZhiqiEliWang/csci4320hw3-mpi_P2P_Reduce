@@ -43,8 +43,8 @@ int MPI_P2P_Reduce(long long int* send_data, // each process's partition of task
         }
         else{ // even ranks after stride: receiver
             long long int recv_buf;
-            MPI_Irecv(&recv_buf, 1, MPI_LONG_LONG, self_rank+stride, MPI_ANY_TAG, communicator, MPI_STATUS_IGNORE);
-            MPI_Wait(&recv_req , &recv_status);
+            MPI_Irecv(&recv_buf, 1, MPI_LONG_LONG, self_rank+stride, MPI_ANY_TAG, communicator, &recv_req);
+            MPI_Wait(&recv_req , MPI_STATUS_IGNORE);
             printf("rank: %d received\n", self_rank);
             local_sum += recv_buf; // perform pairwise sum here
         }
@@ -54,6 +54,7 @@ int MPI_P2P_Reduce(long long int* send_data, // each process's partition of task
         if (self_rank == 0){printf("\n---------stride: %d done-----------\n", stride);}
         // printf("rank: %d just hit barrier\n\n", self_rank);
     }
+
     if (self_rank == root){*recv_data = local_sum;}
     return 0;
 }
