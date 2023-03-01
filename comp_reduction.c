@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <mpi.h>
 #include "clockcycle.h"
+#include ""
 
 
 // this function takes the same inputs as MPI_reduce, except MPI_Op is set to MPI_SUM
@@ -20,6 +21,7 @@ int MPI_P2P_Reduce(long long int* send_data, // each process's partition of task
     MPI_Comm_size(communicator, &comm_size); // get total number of nodes
 
     // -----------1. Each rank computes sum over local data array.---------------
+    
     for (int i=0; i<count; i++){
         local_sum += send_data[i];
     }
@@ -44,6 +46,7 @@ int MPI_P2P_Reduce(long long int* send_data, // each process's partition of task
             printf("rank: %d received\n", self_rank);
         }
         else{ // odd ranks after stride: sender
+            printf("selfrank - stride : %d\n", self_rank-stride)
             MPI_Isend(&local_sum, 1, MPI_LONG_LONG, self_rank-stride, 0, communicator, &send_req);
             MPI_Wait(&send_req , &send_status);
             printf("rank: %d sent\n", self_rank);
@@ -53,7 +56,8 @@ int MPI_P2P_Reduce(long long int* send_data, // each process's partition of task
         // MPI_Barrier(communicator); // sync here
         printf("rank: %d just hit barrier\n\n", self_rank);
     }
-    if (self_rank == root){recv_data = &local_sum;}
+    // if (self_rank == root){recv_data = &local_sum;}
+    recv_data = &local_sum;
     return 0;
 }
 
@@ -72,7 +76,7 @@ int main(int argc, char* argv[]){
     // size of a array is determined by how many nodes are working on this task
     int arrSize = 2<<30 / world_rank; 
 
-    long long int* bigArr = malloc(sizeof(long long int)*world_size);
+    long long int* bigArr = malloc(sizeof(long long int)*arrSize);
 
     for (int i=0; i<arrSize; i++){
         bigArr[i] = world_rank * arrSize;
