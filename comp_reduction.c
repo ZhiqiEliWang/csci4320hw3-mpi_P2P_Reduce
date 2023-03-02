@@ -140,7 +140,7 @@ int main(int argc, char* argv[]){
         // show runtime
     if (world_rank == 0){
         double org_time_in_secs = ((double)(org_end_cycles - org_start_cycles)) / 512000000;
-        printf("MPI_P2P_Reduce took %f seconds.\n", org_time_in_secs);
+        printf("MPI_Reduce took %f seconds.\n", org_time_in_secs);
     }
 
     free(bigArr);
