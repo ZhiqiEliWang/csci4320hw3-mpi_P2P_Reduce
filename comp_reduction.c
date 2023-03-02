@@ -56,7 +56,7 @@ int main(int argc, char* argv[]){
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
     // size of a array is determined by how many nodes are working on this task
-    long long int arrSize = (1<<30) / world_rank; 
+    long long int arrSize = (1<<30) / world_size; 
 
     long long int* bigArr = malloc(sizeof(long long int)*arrSize);
 
