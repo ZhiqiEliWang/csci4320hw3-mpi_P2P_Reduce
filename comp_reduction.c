@@ -124,7 +124,6 @@ int main(int argc, char* argv[]){
         local_sum += bigArr[i];
     }
 
-
     // calling MPI_P2P_Reduce
     global_sum = 0;
     uint64_t org_start_cycles = clock_now();
@@ -144,9 +143,5 @@ int main(int argc, char* argv[]){
     }
 
     free(bigArr);
-
-
-
-
     return 0;
 }
