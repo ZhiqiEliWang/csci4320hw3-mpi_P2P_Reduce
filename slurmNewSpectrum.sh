@@ -8,4 +8,4 @@ module load spectrum-mpi
 #####################################################################################################
 # taskset -c 0-159:4 mpirun -N 32 /gpfs/u/home/SPNR/SPNRcaro/scratch/MPI-Examples/mpi-hello
 mpicc comp_reduction.c -o comp_reduction
-taskset -c 0-159:4 mpirun -N 4 /gpfs/u/home/PCPC/PCPCwnww/scratch/csci4320hw3/comp_reduction
+taskset -c 0-159:4 mpirun -N 32 /gpfs/u/home/PCPC/PCPCwnww/scratch/csci4320hw3/comp_reduction
