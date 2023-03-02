@@ -91,7 +91,6 @@ int main(int argc, char* argv[]){
     MPI_Barrier(MPI_COMM_WORLD);
     uint64_t p2p_end_cycles = clock_now();
 
-    MPI_Finalize();
 
     if (world_rank == 0) printf("result from MPI_P2P_Reduce: %lld\n", global_sum);
 
@@ -105,7 +104,6 @@ int main(int argc, char* argv[]){
     free(bigArr);
 // ----------------------------------MPI_REDUCE----------------------------------
   // Initialize the MPI environment
-    MPI_Init(&argc, &argv);
 
     // Find out rank, size
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
