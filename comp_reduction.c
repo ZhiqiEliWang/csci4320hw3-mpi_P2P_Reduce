@@ -60,13 +60,10 @@ int main(int argc, char* argv[]){
 
     long long int* bigArr = malloc(sizeof(long long int)*arrSize);
 
-    printf("here1\n");
-
     for (long long int i=0; i<arrSize; i++){
-        bigArr[i] = i + (long long) world_rank * (long long) arrSize;
+        bigArr[i] = i + world_rank * arrSize;
     }
 
-    printf("here2\n");
 
     // calling MPI_P2P_Reduce
     long long int global_sum = 0; // only 0th rank process will have this value modified 
