@@ -71,12 +71,12 @@ int main(int argc, char* argv[]){
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
     // size of a array is determined by how many nodes are working on this task
-    int arrSize = 2<<30 / world_rank; 
+    int arrSize = 1<<30 / world_rank; 
 
     long long int* bigArr = malloc(sizeof(long long int)*arrSize);
 
     for (int i=0; i<arrSize; i++){
-        bigArr[i] = world_rank * arrSize;
+        bigArr[i] = i + (long long) world_rank * (long long) arrSize;
     }
 
     // calling MPI_P2P_Reduce
