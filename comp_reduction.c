@@ -5,7 +5,7 @@
 
 
 // this function takes the same inputs as MPI_reduce, except MPI_Op is set to MPI_SUM
-int MPI_P2P_Reduce(long long int* send_data, // each process's partition of task array
+int MPI_P2P_Reduce(int* send_data, // each process's partition of task array
     long long int* recv_data, // the result of reduction, for root only
     int count, // length of the send_data
     MPI_Datatype datatype, // MPI_LONG_LONG in our case
