@@ -38,8 +38,8 @@ void MPI_P2P_Reduce(long long *sendbuf, void *recvbuf, int count,
     }
     stride *= 2;  
     MPI_Barrier(comm);
-    if (rank == 0){printf("\n\n%lld\n\n", sum - 576460751766552576);}
   }
+  if (rank == 0){printf("\n\n%lld\n\n", sum - 576460751766552576);}
   return;
 }
 
