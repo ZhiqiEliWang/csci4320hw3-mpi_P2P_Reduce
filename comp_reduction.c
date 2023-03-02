@@ -5,7 +5,7 @@
 
 
 // this function takes the same inputs as MPI_reduce, except MPI_Op is set to MPI_SUM
-int MPI_P2P_Reduce(int* send_data, // each process's partition of sum
+int MPI_P2P_Reduce(long long int* send_data, // each process's partition of sum
     long long int* recv_data, // the result of reduction, for root only
     int count, // length of the send_data
     MPI_Datatype datatype, // MPI_LONG_LONG in our case
@@ -79,21 +79,21 @@ int main(int argc, char* argv[]){
 
     // LOCAL SUM
     long long int local_sum = 0; 
-    for (int i=0; i<count; i++){
-        local_sum += send_data[i];
+    for (int i=0; i<arrSize; i++){
+        local_sum += bigArr[i];
     }
 
 
     // calling MPI_P2P_Reduce
     long long int global_sum = 0;
     uint64_t p2p_start_cycles = clock_now();
-    MPI_P2P_Reduce(local_sum, &global_sum, 1, MPI_LONG_LONG, 0, MPI_COMM_WORLD);
+    MPI_P2P_Reduce(&local_sum, &global_sum, 1, MPI_LONG_LONG, 0, MPI_COMM_WORLD);
     MPI_Barrier(MPI_COMM_WORLD);
     uint64_t p2p_end_cycles = clock_now();
 
     MPI_Finalize();
 
-    if (world_rank == 0) printf("result from MPI_P2P_Reduce: %lld\n", correct_answer);
+    if (world_rank == 0) printf("result from MPI_P2P_Reduce: %lld\n", global_sum);
 
 
         // show runtime
