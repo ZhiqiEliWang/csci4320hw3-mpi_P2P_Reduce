@@ -104,7 +104,48 @@ int main(int argc, char* argv[]){
 
     free(bigArr);
 // ----------------------------------MPI_REDUCE----------------------------------
+  // Initialize the MPI environment
+    MPI_Init(&argc, &argv);
 
+    // Find out rank, size
+    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+
+    // size of a array is determined by how many nodes are working on this task
+    arrSize = (1<<30) / world_size; 
+
+    bigArr = malloc(sizeof(int)*arrSize);
+
+    for (int i=0; i<arrSize; i++){
+        bigArr[i] = i + world_rank * arrSize;
+    }
+
+    // LOCAL SUM
+    local_sum = 0; 
+    for (int i=0; i<arrSize; i++){
+        local_sum += bigArr[i];
+    }
+
+
+    // calling MPI_P2P_Reduce
+    global_sum = 0;
+    uint64_t org_start_cycles = clock_now();
+    MPI_Reduce(&local_sum, &global_sum, 1, MPI_LONG_LONG, MPI_SUM, 0, MPI_COMM_WORLD);
+    MPI_Barrier(MPI_COMM_WORLD);
+    uint64_t org_end_cycles = clock_now();
+
+    MPI_Finalize();
+
+    if (world_rank == 0) printf("result from MPI_Reduce: %lld\n", global_sum);
+
+
+        // show runtime
+    if (world_rank == 0){
+        double org_time_in_secs = ((double)(org_end_cycles - org_start_cycles)) / 512000000;
+        printf("MPI_P2P_Reduce took %f seconds.\n", org_time_in_secs);
+    }
+
+    free(bigArr);
 
 
 
