@@ -4,58 +4,43 @@
 #include "clockcycle.h"
 
 
-// this function takes the same inputs as MPI_reduce, except MPI_Op is set to MPI_SUM
-int MPI_P2P_Reduce(long long int* send_data, // each process's partition of task array
-    long long int* recv_data, // the result of reduction, for root only
-    int count, // length of the send_data
-    MPI_Datatype datatype, // MPI_LONG_LONG in our case
-    int root, // 0 in our case
-    MPI_Comm communicator) // we only have one communicator
-    {
+void MPI_P2P_Reduce(long long *sendbuf, void *recvbuf, int count,
+                    MPI_Datatype datatype, int target,
+                    MPI_Comm comm) {
+  int stride = 1;
+  int rank, size;
+  int curRank = MPI_Comm_rank(comm, &rank);
 
-    long long int local_sum = 0;
-    int self_rank, comm_size;
-    MPI_Comm_rank(communicator, &self_rank); // get current rank number
-    MPI_Comm_size(communicator, &comm_size); // get total number of nodes
-
-    // -----------1. Each rank computes sum over local data array.---------------
-    
-    for (int i=0; i<count; i++){
-        local_sum += send_data[i];
+  long long sum = 0; 
+  for (int i = 0; i < count; i++) { 
+    sum += sendbuf[i];
+  }
+  MPI_Barrier(comm);
+  //printf("count: %d sum: %lld\n", count, sum);
+  //printf("%d", MPI_Comm_size(comm, &size));
+  MPI_Comm_size(comm, &size);
+  //printf("size: %d\n", size);
+  //MPI_Comm_size(comm, &size);
+  while (stride < size) {
+    //printf("%d %d\n", size, rank);       
+    if ((rank / stride) % 2) {  // sender
+      MPI_Request req;
+      MPI_Isend(&sum, 1, MPI_LONG_LONG, rank - stride, 0, comm, &req);
+      MPI_Wait(&req, MPI_STATUS_IGNORE);
+    } else {  // receiver
+      long long temp;
+      MPI_Request req;
+      MPI_Irecv(&temp, 1, MPI_LONG_LONG, rank + stride, MPI_ANY_TAG, comm, &req);
+      MPI_Wait(&req, MPI_STATUS_IGNORE);
+      sum += temp;
+      if (sum >= 576460751766552576) 
+          printf("temp: %lld\n", sum);
     }
-    // printf("rank: %d, right before the barrier\n", self_rank);
-    MPI_Barrier(communicator); // sync here
-
-    // --------------2. Compute pairwise sums between MPI ranks-------------------
-    int stride = 1;
-    
-
-    while (stride < comm_size){
-        if ((self_rank / stride) % 2 == 1){ // odd ranks after stride: sender
-            MPI_Request send_req;
-            MPI_Status send_status;
-            MPI_Isend(&local_sum, 1, MPI_LONG_LONG, self_rank-stride, 0, communicator, &send_req);
-            MPI_Wait(&send_req , MPI_STATUS_IGNORE);
-            printf("rank: %d sent\n", self_rank);
-        }
-        else{ // even ranks after stride: receiver
-            long long int recv_buf;
-            MPI_Request recv_req;
-            MPI_Status recv_status;
-            MPI_Irecv(&recv_buf, 1, MPI_LONG_LONG, self_rank+stride, MPI_ANY_TAG, communicator, &recv_req);
-            MPI_Wait(&recv_req , MPI_STATUS_IGNORE);
-            printf("rank: %d received\n", self_rank);
-            local_sum += recv_buf; // perform pairwise sum here
-        }
-        // printf("rank: %d about to hit MPI_Barrierr\n\n", self_rank);
-        MPI_Barrier(communicator); // sync here
-        stride *= 2;
-        if (self_rank == 0){printf("\n---------stride: %d done-----------\n", stride);}
-        // printf("rank: %d just hit barrier\n\n", self_rank);
-    }
-
-    if (self_rank == root){*recv_data = local_sum;}
-    return 0;
+    stride *= 2;  
+    MPI_Barrier(comm);
+    if (rank == 0){printf("\n\n%lld\n\n", sum - 576460751766552576);}
+  }
+  return;
 }
 
 
@@ -71,11 +56,11 @@ int main(int argc, char* argv[]){
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
     // size of a array is determined by how many nodes are working on this task
-    int arrSize = 1<<30 / world_rank; 
+    long long int arrSize = 1<<30 / world_rank; 
 
     long long int* bigArr = malloc(sizeof(long long int)*arrSize);
 
-    for (int i=0; i<arrSize; i++){
+    for (long long int i=0; i<arrSize; i++){
         bigArr[i] = i + (long long) world_rank * (long long) arrSize;
     }
 
