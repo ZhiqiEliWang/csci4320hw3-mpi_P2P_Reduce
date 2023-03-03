@@ -17,8 +17,6 @@ int MPI_P2P_Reduce(long long int* send_data, // each process's partition of sum
     int self_rank, comm_size;
     MPI_Comm_rank(communicator, &self_rank); // get current rank number
     MPI_Comm_size(communicator, &comm_size); // get total number of nodes
-
-    // -----------1. Each rank computes sum over local data array.---------------
     
     // printf("rank: %d, right before the barrier\n", self_rank);
     MPI_Barrier(communicator); // sync here
@@ -54,8 +52,6 @@ int MPI_P2P_Reduce(long long int* send_data, // each process's partition of sum
     if (self_rank == root){*recv_data = local_sum;}
     return 0;
 }
-
-
 
 
 int main(int argc, char* argv[]){
