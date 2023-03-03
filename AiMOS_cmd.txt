@@ -20,3 +20,5 @@ git clone https://github.com/ZhiqiEliWang/csci4320hw3.git
 
 # for hw03 mpi:
 mpicc comp_reduction.c -o comp_reduction
+
+sbatch -N 1 --partition=el8-rpi --gres=gpu:6 -t 30 -o 2ranks slurmNewSpectrum.sh 

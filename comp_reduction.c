@@ -76,7 +76,7 @@ int main(int argc, char* argv[]){
     for (int i=0; i<arrSize; i++){
         bigArr[i] = i + world_rank * arrSize;
     }
-
+ 
     // LOCAL SUM
     long long int local_sum = 0; 
     for (int i=0; i<arrSize; i++){

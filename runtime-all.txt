@@ -1,0 +1,47 @@
+2 ranks:
+result from MPI_P2P_Reduce: 576460751766552576
+MPI_P2P_Reduce took 0.000303 seconds.
+result from MPI_Reduce:     576460751766552576
+MPI_Reduce took     0.033976 seconds.
+
+4 ranks:
+result from MPI_P2P_Reduce: 576460751766552576
+MPI_P2P_Reduce took 0.001116 seconds.
+result from MPI_Reduce:     576460751766552576
+MPI_Reduce took     0.000133 seconds.
+
+8 ranks:
+result from MPI_P2P_Reduce: 576460751766552576
+MPI_P2P_Reduce took 0.012199 seconds.
+result from MPI_Reduce:     576460751766552576
+MPI_Reduce took     0.005236 seconds.
+
+16 ranks:
+result from MPI_P2P_Reduce: 576460751766552576
+MPI_P2P_Reduce took 0.038164 seconds.
+result from MPI_Reduce:     576460751766552576
+MPI_Reduce took     0.007273 seconds.
+
+32 ranks:
+result from MPI_P2P_Reduce: 576460751766552576
+MPI_P2P_Reduce took 0.389912 seconds.
+result from MPI_Reduce:     576460751766552576
+MPI_Reduce took     0.273762 seconds.
+
+64 ranks:
+result from MPI_P2P_Reduce: 576460751766552576
+MPI_P2P_Reduce took 0.773272 seconds.
+result from MPI_Reduce:     576460751766552576
+MPI_Reduce took     0.304891 seconds.
+
+128 ranks:
+result from MPI_P2P_Reduce: 576460751766552576
+MPI_P2P_Reduce took 0.709906 seconds.
+result from MPI_Reduce:     576460751766552576
+MPI_Reduce took     0.176335 seconds.
+
+256 ranks:
+result from MPI_P2P_Reduce: 576460751766552576
+MPI_P2P_Reduce took 0.664659 seconds.
+result from MPI_Reduce:     576460751766552576
+MPI_Reduce took     0.097598 seconds.
